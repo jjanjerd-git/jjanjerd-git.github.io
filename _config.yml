@@ -1,0 +1,26 @@
+title: The Journey of Toh
+description: A personal blog and photo journal.
+theme: minima
+minima:
+  skin: classic
+
+markdown: kramdown
+
+plugins:
+  - jekyll-feed
+
+header_pages:
+  - about.md
+  - photos.md
+
+collections:
+  photos:
+    output: true
+    permalink: /photos/:name/
+
+defaults:
+  - scope:
+      path: ""
+      type: "photos"
+    values:
+      layout: "photo"
