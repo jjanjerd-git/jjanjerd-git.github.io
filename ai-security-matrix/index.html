@@ -15,6 +15,7 @@
   --accent:#0d6e72; --accent-soft:#e2f0f0;
   --strong:#0d6e72; --partial:#c98a1b; --none:#b9c4cb;
   --trad:#3d5a80; --ai:#0d6e72; --agent:#8a4f9e;
+  --hi:#c2412d; --hi-fg:#ffffff; --md:#f0b44c; --md-fg:#3a2600; --lo:#e3eaee; --lo-fg:#4a5a66;
   --display:"Archivo","Helvetica Neue",Arial,sans-serif;
   --body:"Source Sans 3","Segoe UI",system-ui,sans-serif;
   --mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
@@ -22,11 +23,13 @@
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
   --bg:#0f161b; --panel:#162027; --fg:#e4ecf0; --muted:#93a4b0; --line:#2a3842;
   --accent:#4fc1c4; --accent-soft:#16343a; --strong:#4fc1c4; --partial:#e2a945; --none:#3c4c57;
-  --trad:#8fb0d8; --ai:#4fc1c4; --agent:#c79ad6; color-scheme:dark}}
+  --trad:#8fb0d8; --ai:#4fc1c4; --agent:#c79ad6;
+  --hi:#e0644f; --hi-fg:#1a0905; --md:#d9a043; --md-fg:#231700; --lo:#26343d; --lo-fg:#9fb0bb; color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#0f161b; --panel:#162027; --fg:#e4ecf0; --muted:#93a4b0; --line:#2a3842;
   --accent:#4fc1c4; --accent-soft:#16343a; --strong:#4fc1c4; --partial:#e2a945; --none:#3c4c57;
-  --trad:#8fb0d8; --ai:#4fc1c4; --agent:#c79ad6; color-scheme:dark}
+  --trad:#8fb0d8; --ai:#4fc1c4; --agent:#c79ad6;
+  --hi:#e0644f; --hi-fg:#1a0905; --md:#d9a043; --md-fg:#231700; --lo:#26343d; --lo-fg:#9fb0bb; color-scheme:dark}
 body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:15px;line-height:1.5}
 .wrap{max-width:1500px;margin:0 auto;padding-block:28px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;gap:22px}
 header{display:grid;gap:8px}
@@ -70,6 +73,18 @@ tr.note td p+p{margin-top:6px;color:var(--muted)}
 .card p{margin:0;font-size:14px;color:var(--muted)}
 h2{font:800 20px var(--display);margin:6px 0 0}
 .foot{font-size:13px;color:var(--muted);max-width:110ch}
+.views{display:flex;flex-wrap:wrap;gap:0;margin-top:8px;border:1px solid var(--line);border-radius:10px;overflow:hidden;width:fit-content;max-width:100%;background:var(--panel)}
+.views button{font:700 14px var(--display);border:0;background:transparent;color:var(--muted);padding:10px 16px;cursor:pointer}
+.views button[aria-selected="true"]{background:var(--accent);color:var(--bg)}
+.views button:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+.view{display:grid;gap:22px}
+.h{display:inline-grid;place-items:center;width:30px;height:24px;border-radius:5px;font:700 11px var(--mono);font-style:normal}
+.h3{background:var(--hi);color:var(--hi-fg)}
+.h2{background:var(--md);color:var(--md-fg)}
+.h1{background:var(--lo);color:var(--lo-fg)}
+.h0{background:transparent;color:var(--none)}
+#m2 td.cell{width:8.5%}
+#m2{min-width:1120px}
 @media (max-width:600px){th.risk,td.risk{min-width:190px}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
@@ -78,9 +93,14 @@ h2{font:800 20px var(--display);margin:6px 0 0}
 <header>
   <div class="eyebrow">AI application security · coverage map · Oct 2026</div>
   <h1>Which tool covers which risk in an AI app</h1>
-  <p class="lede">Rows are risks: classic cyber risks that AI apps still carry, then the AI-specific risks from the OWASP LLM Top 10 (2026 edition), then agent risks from the OWASP Agentic Top 10. Columns are the main AI security platforms after the 2025–26 acquisition wave, plus open source and the traditional security stack you already run. Tap a risk to see why.</p>
+  <p class="lede">Rows are risks: classic cyber risks that AI apps still carry, then the AI-specific risks from the OWASP LLM Top 10 (2026 edition), then agent risks from the OWASP Agentic Top 10. Two views share the same risk list: which security tools cover each risk, and how exposed each type of AI or agent is to it.</p>
+  <div class="views" role="tablist" aria-label="Choose view">
+    <button id="v-btn-tools" role="tab" data-v="tools" aria-selected="true">Risk × security tool</button>
+    <button id="v-btn-types" role="tab" data-v="ai-types" aria-selected="false">Risk × AI / agent type</button>
+  </div>
 </header>
 
+<section id="v-tools" class="view">
 <div class="bar">
   <div class="legend">
     <span><i class="g s"></i> Core strength</span>
@@ -107,6 +127,37 @@ h2{font:800 20px var(--display);margin:6px 0 0}
   <div class="card"><h3>Agentic rows need design controls too</h3><p>Guardrails reduce the risk of tool misuse but do not replace least privilege, per-agent identities, human approval for irreversible actions, and a kill switch. Treat the agentic rows as architecture requirements first, tooling second.</p></div>
   <div class="card"><h3>Validate in a PoC</h3><p>Ratings reflect each vendor's published scope and independent reviews as of October 2026. The market is moving through M&amp;A every quarter, so test detection rates on your own prompts, languages (Thai included) and agent flows before buying.</p></div>
 </div>
+</section>
+
+<section id="v-types" class="view" hidden>
+<div class="bar">
+  <div class="legend">
+    <span><i class="h h3">H</i> High exposure</span>
+    <span><i class="h h2">M</i> Medium</span>
+    <span><i class="h h1">L</i> Low</span>
+    <span><i class="h h0">–</i> Not applicable</span>
+  </div>
+  <div class="tabs" role="group" aria-label="Filter risks">
+    <button id="t-all" data-f="all" aria-pressed="true">All risks</button>
+    <button id="t-t" data-f="t" aria-pressed="false">Traditional</button>
+    <button id="t-a" data-f="a" aria-pressed="false">AI-specific</button>
+    <button id="t-g" data-f="g" aria-pressed="false">Agentic</button>
+  </div>
+</div>
+<p class="foot">Exposure means how likely the risk is to occur and how much damage it does for that kind of deployment, assuming a typical enterprise setup. The more an AI can act on its own, the more the agentic rows light up.</p>
+<div class="scroller"><table id="m2"><thead></thead><tbody></tbody></table></div>
+
+<h2>Reading the columns</h2>
+<div class="cards" id="cards2"></div>
+
+<h2>What this tells you</h2>
+<div class="cards">
+  <div class="card"><h3>Risk follows autonomy</h3><p>Chat tools mostly carry data-leakage and injection risk. Once an AI can call tools, write code or move between systems, identity, privilege and tool-misuse risks dominate. Raise control levels as you move right across the table.</p></div>
+  <div class="card"><h3>Coding agents are underestimated</h3><p>They read untrusted repos and issues, hold developer credentials, install packages and run commands. They score high on more rows than any chat use case. Sandbox them and scope their tokens.</p></div>
+  <div class="card"><h3>Industrial AI changes the stakes</h3><p>Where AI influences plant control or robots, poisoning, adversarial inputs and bad outputs become safety issues, not only data issues. Keep a human or a hard limit between the model and any physical setpoint.</p></div>
+  <div class="card"><h3>Use it to set control tiers</h3><p>Map each new AI project to a column at intake. The high cells in that column give the minimum controls and the tests to run before go-live, which fits a Prove → Scale → Standardize gate review.</p></div>
+</div>
+</section>
 
 <p class="foot">Sources: OWASP Top 10 for LLM Applications 2026 and OWASP Top 10 for Agentic Applications; vendor announcements (Palo Alto/Protect AI and Portkey, Check Point/Lakera, SentinelOne/Prompt Security, Fortinet/Virtue AI, Cisco/Robust Intelligence); independent 2026 tool reviews. This is a judgment-based map for shortlisting, not a test result.</p>
 </div>
@@ -169,15 +220,81 @@ tbody.innerHTML=html;
 function toggle(tr){const n=tr.nextElementSibling;const open=n.hidden;n.hidden=!open;tr.classList.toggle("open",open);tr.setAttribute("aria-expanded",open)}
 tbody.addEventListener("click",e=>{const tr=e.target.closest("tr.row");if(tr)toggle(tr)});
 tbody.addEventListener("keydown",e=>{const tr=e.target.closest("tr.row");if(tr&&(e.key==="Enter"||e.key===" ")){e.preventDefault();toggle(tr)}});
-document.querySelectorAll(".tabs button").forEach(b=>b.addEventListener("click",()=>{
-  const f=b.dataset.f;document.querySelectorAll(".tabs button").forEach(x=>x.setAttribute("aria-pressed",x===b));
-  tbody.querySelectorAll("tr").forEach(tr=>{
-    const show=f==="all"||tr.dataset.g===f;
-    if(tr.classList.contains("note")){if(!show)tr.hidden=true;else tr.hidden=!tr.previousElementSibling.classList.contains("open")}
-    else tr.hidden=!show;
-  });
-}));
+function wireFilter(scope,body){
+  const btns=document.querySelectorAll(scope+" .tabs button");
+  btns.forEach(b=>b.addEventListener("click",()=>{
+    const f=b.dataset.f;btns.forEach(x=>x.setAttribute("aria-pressed",x===b));
+    body.querySelectorAll("tr").forEach(tr=>{
+      const show=f==="all"||tr.dataset.g===f;
+      if(tr.classList.contains("note")){if(!show)tr.hidden=true;else tr.hidden=!tr.previousElementSibling.classList.contains("open")}
+      else tr.hidden=!show;
+    });
+  }));
+}
+wireFilter("#v-tools",tbody);
 document.getElementById("cards").innerHTML=cols.map(c=>`<div class="card"><h3>${c.n}</h3><p>${c.note}</p></div>`).join("");
+
+/* ---- View 2: risk × AI / agent type (3 high, 2 medium, 1 low, 0 n/a) ---- */
+const types=[
+ {n:"Employee GenAI use",s:"ChatGPT, Gemini, Copilot chat",note:"Staff using public or licensed chat tools. Main risks are pasting confidential data and unsanctioned tools. Controls: approved tool list, prompt DLP, browser-level AI discovery."},
+ {n:"Internal RAG assistant",s:"bots over company docs",note:"Answers from SharePoint, wikis, manuals. Risks come from the documents: poisoned or injected content, and users seeing data they shouldn't. Controls: permission-aware retrieval, source curation, injection scanning of retrieved text."},
+ {n:"Customer-facing chatbot",s:"web, LINE, call centre",note:"Exposed to anyone on the internet. Expect jailbreaks, prompt extraction, abuse of cost and brand-damaging answers. Controls: runtime firewall, topic limits, rate limits, output review for claims."},
+ {n:"Coding assistant / agent",s:"Copilot, Claude Code, Cursor",note:"Reads untrusted repos and issues, holds credentials, installs packages, runs commands. Controls: sandboxed runtimes, scoped tokens, SCA on generated code, approval for pushes and deploys."},
+ {n:"Low-code copilot agents",s:"Copilot Studio, Power Automate, n8n",note:"Business users build agents fast, often with broad connectors and their own credentials. Controls: agent inventory, connector policies, posture scanning (e.g. Zenity), owner accountability."},
+ {n:"Tool-using workflow agent",s:"APIs, MCP, ERP / SAP actions",note:"Takes real actions in business systems. Risk shifts from what it says to what it does. Controls: per-agent identity, least privilege, tool-call inspection, human approval for irreversible actions."},
+ {n:"Multi-agent system",s:"orchestrated agent chains",note:"Agents pass instructions and context to each other, so one compromised step spreads. Controls: trust boundaries between agents, end-to-end tracing, circuit breakers and a kill switch."},
+ {n:"Self-hosted / fine-tuned model",s:"open-weight LLMs on own GPUs",note:"You own the model supply chain and infrastructure. Controls: model file scanning, signed artifacts, training-data provenance, GPU host hardening, inference gateway."},
+ {n:"Predictive & vision ML",s:"forecasting, quality inspection",note:"Classic ML is less exposed to prompt attacks but open to poisoning, evasion and model theft. Controls: data pipeline integrity, drift monitoring, adversarial robustness testing."},
+ {n:"Industrial / physical AI",s:"OT control, robotics, plant ops",note:"Errors become safety and production incidents. Controls: IT/OT segmentation, hard limits on setpoints, human-in-the-loop, OT monitoring, fail-safe defaults."}
+];
+const exp=[
+ [1,2,3,1,2,2,2,2,2,2],
+ [0,2,2,3,2,2,2,3,2,2],
+ [2,2,2,3,3,3,3,2,1,3],
+ [0,2,2,1,1,2,2,3,2,2],
+ [3,3,2,2,3,2,2,1,1,1],
+ [2,2,2,2,2,3,3,2,2,3],
+ [1,2,3,1,2,2,2,2,0,1],
+ [2,3,1,3,3,3,3,1,0,2],
+ [3,3,3,2,3,2,2,2,1,1],
+ [0,1,3,1,2,2,2,1,0,1],
+ [0,1,1,2,0,1,1,3,3,3],
+ [0,3,2,1,1,2,2,3,3,3],
+ [1,2,3,3,2,3,3,2,1,3],
+ [1,1,3,2,2,3,3,2,0,1],
+ [2,2,3,1,1,2,2,2,1,2],
+ [3,1,1,3,3,2,2,2,1,1],
+ [0,0,1,0,0,0,0,2,3,3],
+ [0,1,1,3,3,3,3,1,0,3],
+ [0,1,1,3,3,3,3,0,0,3],
+ [1,1,0,3,2,3,3,0,0,2],
+ [1,2,1,2,2,3,3,0,0,2],
+ [0,0,0,2,2,2,3,0,0,3]
+];
+const hl=["–","L","M","H"],hn=["not applicable","low","medium","high"];
+const thead2=document.querySelector("#m2 thead"),tbody2=document.querySelector("#m2 tbody");
+thead2.innerHTML='<tr><th class="risk">Risk</th>'+types.map(t=>`<th>${t.n}<small>${t.s}</small></th>`).join("")+"</tr>";
+let h2="",l2="";
+rows.forEach((r,i)=>{
+  if(r.g!==l2){l2=r.g;h2+=`<tr class="group" data-g="${r.g}"><td colspan="${types.length+1}"><span><i style="background:${groups[r.g][1]}"></i>${groups[r.g][0]}</span></td></tr>`}
+  h2+=`<tr data-g="${r.g}"><td class="risk"><b>${r.r}</b><code>${r.c}</code></td>`+
+    exp[i].map((x,j)=>`<td class="cell" aria-label="${types[j].n}: ${hn[x]}"><i class="h h${x}">${hl[x]}</i></td>`).join("")+"</tr>";
+});
+tbody2.innerHTML=h2;
+wireFilter("#v-types",tbody2);
+document.getElementById("cards2").innerHTML=types.map((t,j)=>{
+  const top=rows.filter((r,i)=>exp[i][j]===3).map(r=>r.r);
+  return `<div class="card"><h3>${t.n}</h3><p>${t.note}</p><p><b>High exposure (${top.length}):</b> ${top.join(", ")||"none"}.</p></div>`}).join("");
+
+/* view switch, deep-linkable as #tools or #ai-types */
+const vBtns=document.querySelectorAll(".views button");
+function showView(v){
+  document.getElementById("v-tools").hidden=v!=="tools";
+  document.getElementById("v-types").hidden=v!=="ai-types";
+  vBtns.forEach(b=>b.setAttribute("aria-selected",b.dataset.v===v));
+}
+vBtns.forEach(b=>b.addEventListener("click",()=>{showView(b.dataset.v);try{history.replaceState(null,"","#"+b.dataset.v)}catch(e){}}));
+showView(location.hash==="#ai-types"?"ai-types":"tools");
 </script>
 
 </html>
