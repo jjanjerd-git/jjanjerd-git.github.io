@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>AI App Risk × Tool Matrix</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800&family=Source+Sans+3:wght@400;600&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Layout: control-room matrix — risks down the left (sticky), tools across; coverage glyphs carry the meaning, color only reinforces */
+:root{
+  --bg:#f5f7f8; --panel:#ffffff; --fg:#14202a; --muted:#5a6b78; --line:#d8e0e5;
+  --accent:#0d6e72; --accent-soft:#e2f0f0;
+  --strong:#0d6e72; --partial:#c98a1b; --none:#b9c4cb;
+  --trad:#3d5a80; --ai:#0d6e72; --agent:#8a4f9e;
+  --display:"Archivo","Helvetica Neue",Arial,sans-serif;
+  --body:"Source Sans 3","Segoe UI",system-ui,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0f161b; --panel:#162027; --fg:#e4ecf0; --muted:#93a4b0; --line:#2a3842;
+  --accent:#4fc1c4; --accent-soft:#16343a; --strong:#4fc1c4; --partial:#e2a945; --none:#3c4c57;
+  --trad:#8fb0d8; --ai:#4fc1c4; --agent:#c79ad6; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f161b; --panel:#162027; --fg:#e4ecf0; --muted:#93a4b0; --line:#2a3842;
+  --accent:#4fc1c4; --accent-soft:#16343a; --strong:#4fc1c4; --partial:#e2a945; --none:#3c4c57;
+  --trad:#8fb0d8; --ai:#4fc1c4; --agent:#c79ad6; color-scheme:dark}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:15px;line-height:1.5}
+.wrap{max-width:1500px;margin:0 auto;padding-block:28px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;gap:22px}
+header{display:grid;gap:8px}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
+h1{font-family:var(--display);font-weight:800;font-size:clamp(26px,3.4vw,38px);line-height:1.1;margin:0;text-wrap:balance;letter-spacing:-.01em}
+.lede{max-width:70ch;color:var(--muted);margin:0}
+.bar{display:flex;flex-wrap:wrap;gap:16px 28px;align-items:center;justify-content:space-between}
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-size:13px;color:var(--muted);align-items:center}
+.legend span{display:inline-flex;gap:6px;align-items:center}
+.tabs{display:flex;flex-wrap:wrap;gap:6px}
+.tabs button{font:600 13px var(--body);border:1px solid var(--line);background:var(--panel);color:var(--fg);padding:6px 12px;border-radius:999px;cursor:pointer}
+.tabs button[aria-pressed="true"]{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.tabs button:focus-visible,.row:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.scroller{overflow-x:auto;border:1px solid var(--line);border-radius:10px;background:var(--panel)}
+table{border-collapse:separate;border-spacing:0;width:100%;min-width:1180px;font-variant-numeric:tabular-nums}
+th,td{border-bottom:1px solid var(--line);padding:9px 8px;vertical-align:middle}
+thead th{position:sticky;top:0;background:var(--panel);z-index:2;font:700 12px/1.25 var(--display);text-align:center;vertical-align:bottom;padding-top:14px}
+thead th small{display:block;font:400 11px/1.3 var(--body);color:var(--muted);margin-top:3px}
+thead th.trad{background:var(--accent-soft)}
+th.risk,td.risk{position:sticky;left:0;background:var(--panel);z-index:1;text-align:left;min-width:250px;max-width:290px;border-right:1px solid var(--line)}
+thead th.risk{z-index:3;font-size:13px}
+td.risk b{font-weight:600;display:block;line-height:1.3}
+td.risk code{font-family:var(--mono);font-size:11px;color:var(--muted)}
+td.cell{text-align:center;width:7.5%}
+td.cell.trad{background:color-mix(in srgb,var(--accent-soft) 55%,transparent)}
+tr.group td{background:var(--bg);font:700 12px var(--mono);letter-spacing:.08em;text-transform:uppercase;padding:10px 12px;position:sticky;left:0}
+tr.group td span{display:inline-flex;align-items:center;gap:8px}
+tr.group td i{width:10px;height:10px;border-radius:2px;display:inline-block}
+tr.row{cursor:pointer}
+tr.row:hover td,tr.row.open td{background:var(--accent-soft)}
+tr.note td{background:var(--bg);font-size:14px;color:var(--fg);padding:12px 14px 14px}
+tr.note td p{margin:0;max-width:110ch}
+tr.note td p+p{margin-top:6px;color:var(--muted)}
+.g{display:inline-block;width:16px;height:16px;border-radius:50%;vertical-align:middle}
+.g.s{background:var(--strong)}
+.g.p{background:linear-gradient(90deg,var(--partial) 50%,transparent 50%);border:2px solid var(--partial);width:14px;height:14px}
+.g.n{width:6px;height:6px;background:var(--none)}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px;display:grid;gap:6px;align-content:start;min-width:0}
+.card h3{font:700 15px var(--display);margin:0}
+.card p{margin:0;font-size:14px;color:var(--muted)}
+h2{font:800 20px var(--display);margin:6px 0 0}
+.foot{font-size:13px;color:var(--muted);max-width:110ch}
+@media (max-width:600px){th.risk,td.risk{min-width:190px}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+<header>
+  <div class="eyebrow">AI application security · coverage map · Oct 2026</div>
+  <h1>Which tool covers which risk in an AI app</h1>
+  <p class="lede">Rows are risks: classic cyber risks that AI apps still carry, then the AI-specific risks from the OWASP LLM Top 10 (2026 edition), then agent risks from the OWASP Agentic Top 10. Columns are the main AI security platforms after the 2025–26 acquisition wave, plus open source and the traditional security stack you already run. Tap a risk to see why.</p>
+</header>
+
+<div class="bar">
+  <div class="legend">
+    <span><i class="g s"></i> Core strength</span>
+    <span><i class="g p"></i> Partial / via wider portfolio</span>
+    <span><i class="g n"></i> Not a focus</span>
+  </div>
+  <div class="tabs" role="group" aria-label="Filter risks">
+    <button id="f-all" data-f="all" aria-pressed="true">All risks</button>
+    <button id="f-t" data-f="t" aria-pressed="false">Traditional</button>
+    <button id="f-a" data-f="a" aria-pressed="false">AI-specific</button>
+    <button id="f-g" data-f="g" aria-pressed="false">Agentic</button>
+  </div>
+</div>
+
+<div class="scroller"><table id="m"><thead></thead><tbody></tbody></table></div>
+
+<h2>Reading the columns</h2>
+<div class="cards" id="cards"></div>
+
+<h2>How to use this</h2>
+<div class="cards">
+  <div class="card"><h3>No single tool covers the grid</h3><p>Even the broadest platforms are weak on poisoning, memory attacks and output handling. Plan for one runtime AI platform, AI-SPM for discovery, a model scanner if you use open-weight models, and your existing stack for the traditional rows.</p></div>
+  <div class="card"><h3>Start from what you already own</h3><p>Prisma AIRS, Cisco AI Defense, Check Point, SentinelOne, Fortinet and Microsoft all sell AI security as an extension of their existing platform. The vendor already in your network or SOC usually wins on integration and cost.</p></div>
+  <div class="card"><h3>Agentic rows need design controls too</h3><p>Guardrails reduce the risk of tool misuse but do not replace least privilege, per-agent identities, human approval for irreversible actions, and a kill switch. Treat the agentic rows as architecture requirements first, tooling second.</p></div>
+  <div class="card"><h3>Validate in a PoC</h3><p>Ratings reflect each vendor's published scope and independent reviews as of October 2026. The market is moving through M&amp;A every quarter, so test detection rates on your own prompts, languages (Thai included) and agent flows before buying.</p></div>
+</div>
+
+<p class="foot">Sources: OWASP Top 10 for LLM Applications 2026 and OWASP Top 10 for Agentic Applications; vendor announcements (Palo Alto/Protect AI and Portkey, Check Point/Lakera, SentinelOne/Prompt Security, Fortinet/Virtue AI, Cisco/Robust Intelligence); independent 2026 tool reviews. This is a judgment-based map for shortlisting, not a test result.</p>
+</div>
+
+<script>
+const cols=[
+ {n:"Palo Alto Prisma AIRS",s:"Protect AI, Portkey, CyberArk",note:"Broadest lifecycle coverage: model scanning, red teaming, AI-SPM, runtime firewall, AI gateway and agent security, tied into Palo Alto NGFW. Best when you already run Palo Alto."},
+ {n:"Cisco AI Defense",s:"Robust Intelligence",note:"Continuous red teaming plus runtime guardrails, with model validation. Fits organisations standardised on Cisco networking and Secure Access."},
+ {n:"Check Point AI Security",s:"Lakera Guard / Red",note:"Developer-friendly LLM firewall with strong prompt injection detection and Lakera Red for testing. Narrower scope: little on model supply chain or posture."},
+ {n:"SentinelOne",s:"Prompt Security",note:"Strong on employee AI use and homegrown app runtime: injection, data leakage, shadow AI and MCP discovery, inside the Singularity XDR console."},
+ {n:"Fortinet",s:"FortiAIGate + Virtue AI",note:"FortiAIGate guards LLM traffic (injection, leakage, cost abuse); Virtue AI (acquired Aug 2026) adds agent red teaming, MCP scanning and tool-call blocking. Integration still maturing."},
+ {n:"HiddenLayer",s:"AISec platform",note:"Model-centric security: model file scanning, adversarial ML detection, model theft and poisoning. Good for classic ML and open-weight models; lighter on agents."},
+ {n:"Wiz AI-SPM",s:"Cloud posture",note:"Finds AI services, models, data and exposed endpoints across your cloud, and the attack paths between them. Does not block prompts at runtime."},
+ {n:"Zenity",s:"Agent security",note:"Built for agents and low-code copilots: inventory, posture, runtime guardrails on tool use, permission analysis. Strong on Microsoft Copilot Studio and similar builders."},
+ {n:"Microsoft",s:"Defender for AI, Prompt Shields, Purview, Entra Agent ID",note:"If your AI runs on Azure / M365: Prompt Shields for injection, content safety filters, Purview DLP for prompts, Defender for Cloud AI threat protection, Entra identities for agents."},
+ {n:"Open source",s:"garak, Promptfoo, NeMo Guardrails, LLM Guard",note:"Free scanners and guardrail libraries. Good for CI testing and a baseline filter; you own the tuning, scale and operations."},
+ {n:"Traditional stack",s:"WAF, API gateway, SAST/SCA, IAM/PAM, DLP, CSPM, SIEM",trad:true,note:"Still the main control for the traditional rows, and for rate limiting and output sanitising. AI tools add to this layer; they do not replace it."}
+];
+// 2 = core, 1 = partial, 0 = not a focus
+const rows=[
+ {g:"t",r:"Web & API attacks",c:"SQLi, XSS, DDoS, bots",v:[1,1,1,0,1,0,0,0,1,0,2],w:"The chatbot or agent still sits behind a web front end and APIs. WAF, API gateway and DDoS protection do the work; network vendors cover it through their wider portfolio, not their AI product."},
+ {g:"t",r:"Vulnerable code & dependencies",c:"LangChain, SDKs, containers",v:[1,0,0,0,0,0,1,0,1,1,2],w:"AI frameworks ship CVEs like any library. SAST/SCA and container scanning are primary; Wiz and Prisma add cloud-side visibility."},
+ {g:"t",r:"Identity, auth & secrets",c:"API keys, tokens, service accounts",v:[1,1,0,1,0,0,1,1,1,0,2],w:"Leaked LLM API keys and over-privileged service accounts are a top real-world cause of AI incidents. IAM/PAM and secret scanning lead; SentinelOne flags secrets in prompts, Zenity and Wiz find exposed credentials."},
+ {g:"t",r:"Cloud & infra misconfiguration",c:"open endpoints, buckets, GPU hosts",v:[2,1,0,0,0,0,2,0,2,0,2],w:"Exposed inference endpoints, public vector stores and open training buckets. CSPM and AI-SPM (Wiz, Prisma, Defender for Cloud) are the right tools."},
+ {g:"t",r:"Classic data loss",c:"files, email, SaaS",v:[1,1,1,1,1,0,1,0,2,0,2],w:"Your existing DLP and data classification still matter because AI apps read from the same data. Purview extends naturally to Copilot and Azure OpenAI."},
+ {g:"t",r:"Detection & incident response",c:"logging, SIEM, SOC playbooks",v:[1,1,1,2,1,1,1,1,2,0,2],w:"You need AI events (blocked prompts, tool calls) in the SOC. SentinelOne and Microsoft are native to their XDR/SIEM; others export to your SIEM."},
+
+ {g:"a",r:"Direct prompt injection & jailbreak",c:"OWASP LLM01",v:[2,2,2,2,2,2,0,1,2,1,0],w:"The core job of every runtime AI firewall. Detection quality varies by language and attack style; test with Thai and mixed-language prompts."},
+ {g:"a",r:"Indirect prompt injection",c:"LLM01 · via RAG docs, email, web pages",v:[2,2,2,1,2,1,0,2,2,1,0],w:"Instructions hidden in content the model reads. Tools must scan retrieved documents and tool responses, not only user input. Lakera, Prisma, Virtue AI and Zenity inspect tool and document content explicitly."},
+ {g:"a",r:"Sensitive data disclosure",c:"LLM02 · PII, secrets in prompts and answers",v:[2,2,2,2,2,1,1,1,2,1,1],w:"Two directions: staff pasting confidential data into AI, and the model leaking data it can reach. Runtime tools redact both ways; Purview adds labels-aware DLP."},
+ {g:"a",r:"Hidden context / system prompt leakage",c:"OWASP 2026 (broadened)",v:[2,2,2,2,1,1,0,1,1,1,0],w:"Extraction of system prompts and hidden instructions. Output filters catch it; better still, keep secrets and business logic out of prompts."},
+ {g:"a",r:"Model supply chain",c:"LLM04 · malicious model files, unvetted weights",v:[2,2,0,0,1,2,1,0,1,1,1],w:"Pickle-based model files can execute code on load. Model scanners (Protect AI in Prisma, HiddenLayer, Cisco) are essential if you pull from Hugging Face or fine-tune open models."},
+ {g:"a",r:"Data & model poisoning",c:"LLM05 · training, fine-tune, RAG corpus",v:[1,1,0,0,1,2,1,0,0,0,0],w:"The weakest-covered row. HiddenLayer is strongest on ML poisoning; for RAG, rely on source control, document provenance and write access to the knowledge base."},
+ {g:"a",r:"Improper output handling",c:"LLM output into SQL, shell, HTML",v:[1,1,1,1,1,0,0,0,1,1,2],w:"Treat model output as untrusted input. Output encoding, parameterised queries and sandboxing in your own code do most of the work."},
+ {g:"a",r:"Unbounded consumption",c:"LLM06 · cost abuse, denial of wallet",v:[2,1,1,0,2,0,0,0,1,1,2],w:"Token floods and runaway agent loops burn budget. AI gateways (Prisma via Portkey, FortiAIGate) and API rate limits handle it."},
+ {g:"a",r:"Harmful content & misinformation",c:"LLM07 · toxicity, hallucination, off-topic",v:[1,2,1,1,1,0,0,0,2,1,0],w:"Content filters help with toxicity and topic control. Hallucination is mainly a design problem: grounding, citations and human review for high-stakes answers."},
+ {g:"a",r:"Shadow AI",c:"unsanctioned tools, models, MCP servers",v:[2,2,1,2,2,0,2,2,2,0,1],w:"You cannot secure AI you don't know exists. AI-SPM and browser or endpoint discovery (SentinelOne, Prisma, Wiz, Zenity) give the inventory; CASB gives partial coverage."},
+ {g:"a",r:"Model theft & adversarial ML",c:"extraction, evasion on classic ML",v:[1,1,0,0,0,2,0,0,0,1,0],w:"Relevant to predictive and vision models in plants and logistics, not only LLMs. HiddenLayer is the specialist here."},
+
+ {g:"g",r:"Excessive agency & tool misuse",c:"LLM03 · ASI02",v:[2,1,1,1,2,1,0,2,1,1,0],w:"The biggest climber in OWASP 2026. Look for tools that inspect and block individual tool calls, not just prompts: Prisma AIRS agent security, Virtue AI, Zenity."},
+ {g:"g",r:"Agent identity & privilege abuse",c:"ASI03",v:[2,1,0,1,1,0,1,2,2,0,1],w:"Agents need their own identities and least-privilege scopes. Microsoft Entra Agent ID, CyberArk (inside Prisma) and Zenity's permission analysis address this; classic PAM partially."},
+ {g:"g",r:"Malicious or shadow MCP servers",c:"tool supply chain",v:[2,2,1,2,2,0,1,2,1,1,0],w:"Tool descriptions can carry injected instructions and MCP servers can be impersonated. Prompt Security, Virtue AI, Prisma and Zenity discover and scan MCP servers."},
+ {g:"g",r:"Memory poisoning & goal hijack",c:"ASI01 · ASI06",v:[1,1,1,1,1,0,0,1,0,0,0],w:"Planted content in long-term agent memory redirects later sessions. Tooling is immature everywhere; use memory scoping, expiry and review."},
+ {g:"g",r:"Rogue & cascading agents",c:"ASI08 · ASI10 · monitoring, kill switch",v:[1,1,0,1,1,0,0,2,1,0,1],w:"Multi-agent chains fail in ways no single check sees. You need behaviour monitoring and a way to cut an agent off. Zenity is furthest along; others are adding it."}
+];
+const groups={t:["Traditional cyber risks, still present",'var(--trad)'],a:["AI-specific risks · OWASP LLM Top 10 (2026)",'var(--ai)'],g:["Agentic risks · OWASP Agentic Top 10",'var(--agent)']};
+const glyph=x=>x===2?'<i class="g s" title="Core strength"></i>':x===1?'<i class="g p" title="Partial"></i>':'<i class="g n" title="Not a focus"></i>';
+const lbl=x=>x===2?"core strength":x===1?"partial":"not a focus";
+const thead=document.querySelector("#m thead"),tbody=document.querySelector("#m tbody");
+thead.innerHTML='<tr><th class="risk">Risk</th>'+cols.map(c=>`<th class="${c.trad?'trad':''}">${c.n}<small>${c.s}</small></th>`).join("")+"</tr>";
+let html="",last="";
+rows.forEach((r,i)=>{
+  if(r.g!==last){last=r.g;html+=`<tr class="group" data-g="${r.g}"><td colspan="${cols.length+1}"><span><i style="background:${groups[r.g][1]}"></i>${groups[r.g][0]}</span></td></tr>`}
+  html+=`<tr class="row" data-g="${r.g}" data-i="${i}" tabindex="0" aria-expanded="false"><td class="risk"><b>${r.r}</b><code>${r.c}</code></td>`+
+    r.v.map((x,j)=>`<td class="cell ${cols[j].trad?'trad':''}" aria-label="${cols[j].n}: ${lbl(x)}">${glyph(x)}</td>`).join("")+"</tr>";
+  const best=r.v.map((x,j)=>x===2?cols[j].n:null).filter(Boolean);
+  html+=`<tr class="note" data-g="${r.g}" hidden><td colspan="${cols.length+1}"><p>${r.w}</p><p>Core coverage: ${best.length?best.join(", "):"none; rely on design controls"}.</p></td></tr>`;
+});
+tbody.innerHTML=html;
+function toggle(tr){const n=tr.nextElementSibling;const open=n.hidden;n.hidden=!open;tr.classList.toggle("open",open);tr.setAttribute("aria-expanded",open)}
+tbody.addEventListener("click",e=>{const tr=e.target.closest("tr.row");if(tr)toggle(tr)});
+tbody.addEventListener("keydown",e=>{const tr=e.target.closest("tr.row");if(tr&&(e.key==="Enter"||e.key===" ")){e.preventDefault();toggle(tr)}});
+document.querySelectorAll(".tabs button").forEach(b=>b.addEventListener("click",()=>{
+  const f=b.dataset.f;document.querySelectorAll(".tabs button").forEach(x=>x.setAttribute("aria-pressed",x===b));
+  tbody.querySelectorAll("tr").forEach(tr=>{
+    const show=f==="all"||tr.dataset.g===f;
+    if(tr.classList.contains("note")){if(!show)tr.hidden=true;else tr.hidden=!tr.previousElementSibling.classList.contains("open")}
+    else tr.hidden=!show;
+  });
+}));
+document.getElementById("cards").innerHTML=cols.map(c=>`<div class="card"><h3>${c.n}</h3><p>${c.note}</p></div>`).join("");
+</script>
+
+</html>
